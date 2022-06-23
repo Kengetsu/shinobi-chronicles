@@ -39,7 +39,7 @@ function battle(): bool {
 			$attack_id = (int)$system->clean($_GET['attack']);
 
 			try {
-			    $user = new User($attack_id);
+			    $user = User::loadFromId($system, $attack_id);
 			    $user->loadData(User::UPDATE_NOTHING, true);
             } catch(Exception $e) {
                 throw new Exception("Invalid user! " . $e->getMessage());

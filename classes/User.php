@@ -234,53 +234,75 @@ class User extends Fighter {
      * @param $user_id
      * @throws Exception
      */
-    public function __construct($user_id) {
-        global $system;
+    public function __construct(System $system, $user_id) {
         $this->system =& $system;
-
         if(!$user_id) {
             throw new Exception("Invalid user id!");
         }
+        
         $this->user_id = $this->system->clean($user_id);
         $this->id = self::ENTITY_TYPE . ':' . $this->user_id;
+    }
 
-        $result = $this->system->query("SELECT `user_id`, `user_name`, `ban_type`, `ban_expire`, `journal_ban`, `avatar_ban`, `song_ban`, `last_login`,
-			`forbidden_seal`, `chat_color`, `staff_level`, `username_changes`, `support_level`, `special_mission`
-			FROM `users` WHERE `user_id`='$this->user_id' LIMIT 1"
+    /**
+     * @param System $system
+     * @param int    $user_id
+     * @return User
+     * @throws Exception
+     */
+    public static function loadFromId(System $system, int $user_id): User {
+        $user = new User($system, $user_id);
+
+        $result = $system->query("SELECT 
+            `user_id`, 
+            `user_name`, 
+            `ban_type`, 
+            `ban_expire`, 
+            `journal_ban`, 
+            `avatar_ban`, 
+            `song_ban`, 
+            `last_login`,
+			`forbidden_seal`, 
+			`chat_color`, 
+			`staff_level`, 
+			`username_changes`, 
+			`support_level`, 
+			`special_mission`
+			FROM `users` WHERE `user_id`='$user_id' LIMIT 1"
         );
-        if($this->system->db_last_num_rows == 0) {
+        if($system->db_last_num_rows == 0) {
             throw new Exception("User does not exist!");
         }
 
-        $result = $this->system->db_fetch($result);
+        $result = $system->db_fetch($result);
 
-        $this->user_name = $result['user_name'];
-        $this->username_changes = $result['username_changes'];
+        $user->user_name = $result['user_name'];
+        $user->username_changes = $result['username_changes'];
 
-        $this->staff_level = $result['staff_level'];
-        $this->support_level = $result['support_level'];
+        $user->staff_level = $result['staff_level'];
+        $user->support_level = $result['support_level'];
 
-        $this->ban_type = $result['ban_type'];
-        $this->ban_expire = $result['ban_expire'];
-        $this->journal_ban = $result['journal_ban'];
-        $this->avatar_ban = $result['avatar_ban'];
-        $this->song_ban = $result['song_ban'];
+        $user->ban_type = $result['ban_type'];
+        $user->ban_expire = $result['ban_expire'];
+        $user->journal_ban = $result['journal_ban'];
+        $user->avatar_ban = $result['avatar_ban'];
+        $user->song_ban = $result['song_ban'];
 
-        $this->last_login = $result['last_login'];
+        $user->last_login = $result['last_login'];
 
-        $this->forbidden_seal = $result['forbidden_seal'];
-        $this->chat_color = $result['chat_color'];
+        $user->forbidden_seal = $result['forbidden_seal'];
+        $user->chat_color = $result['chat_color'];
 
-        if($this->ban_type && $this->ban_expire <= time()) {
-            $this->system->message("Your " . $this->ban_type . " ban has ended.");
-            $this->ban_type = '';
+        if($user->ban_type && $user->ban_expire <= time()) {
+            $system->message("Your " . $user->ban_type . " ban has ended.");
+            $user->ban_type = '';
 
-            $this->system->query("UPDATE `users` SET `ban_type`='', `ban_expire`='0' WHERE `user_id`='$this->user_id' LIMIT 1");
+            $system->query("UPDATE `users` SET `ban_type`='', `ban_expire`='0' WHERE `user_id`='$user->user_id' LIMIT 1");
         }
 
-        $this->inventory_loaded = false;
+        $user->inventory_loaded = false;
 
-        return true;
+        return $user;
     }
 
     /* function loadData()
@@ -1556,14 +1578,14 @@ class User extends Fighter {
      * @return User
      * @throws Exception
      */
-    public static function fromEntityId(string $entity_id): User {
+    public static function fromEntityId(System $system, string $entity_id): User {
         $entity_id = System::parseEntityId($entity_id);
 
         if($entity_id->entity_type != self::ENTITY_TYPE) {
             throw new Exception("Entity ID is not a User!");
         }
 
-        return new User($entity_id->id);
+        return User::loadFromId($system, $entity_id->id);
     }
 
     public static function create(
