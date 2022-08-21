@@ -13,6 +13,7 @@
     const mapContainer = document.querySelector("#travelMapContainer");
     const travelApiLink = "<?= $system->api_links['travel'] ?>";
     const player = <?= json_encode($player)?>;
+    const system = <?= json_encode($system)?>;
     const mapSize = ['<?= System::MAP_SIZE_X?>','<?= System::MAP_SIZE_Y?>'];
     const villages = <?= json_encode($system->getVillageLocations())?>;
     const villageIcons = ['stone.png', 'cloud.png', 'leaf.png', 'sand.png', 'mist.png'];
@@ -21,6 +22,7 @@
         ReactDOM.render(
             React.createElement(AreaMap, {
                 player: player,
+                system: system,
                 travelApiLink: travelApiLink,
                 mapSize: mapSize,
                 villages: villages,

@@ -3,6 +3,7 @@ import { apiFetch } from "../utils/network.js";
 
 type Props = {|
     +player: Array,
+    +system: Array,
     +travelApiLink: string,
     +mapSize: Array,
     +villages: Array,
@@ -11,6 +12,7 @@ type Props = {|
 
 function AreaMap({
         player: player,
+        system: system,
         travelApiLink: travelApiLink,
         mapSize: mapSize,
         villages: villages,
@@ -75,41 +77,6 @@ function AreaMap({
                     </tr>
                 );
             }));
-               /*
-                <tr key={row[0]}>
-                    {row.map(cellId => (
-                            villages[index + '.' + cellId] ?
-                            <td key={cellId} className='village' style={{
-                                backgroundImage: './images/village_icons/' + villageIcons[villages[key]]['count'],
-                                backgroundColor: key === player.village_location ? '#FFEF30' : '',
-                            }}></td>
-                            :
-                            <td key={cellId}>
-                                {cellId}
-                                {(0 === currentLocation[1] && 0 === currentLocation[0]) ?
-                                    <img src='../images/ninja_head.png'/> : ''}
-                            </td>
-                        )
-                    )}
-                </tr>
-            ))
-        );*/
-        /*
-        <tr>
-            {villages[currentLocation] ?
-                <td className='village' style={{
-                    backgroundImage: './images/village_icons/' + villageIcons[villages[key]]['count'],
-                    backgroundColor: key === player.village_location ? '#FFEF30' : '',
-                }}></td>
-                :
-                <td>
-                    {(0 === currentLocation[1] && 0 === currentLocation[0]) ?
-                        <img src='../images/ninja_head.png'/> : ''}
-                </td>
-            }
-        </tr>
-         */
-
     }
     const RenderMap = () =>
     {
@@ -128,14 +95,44 @@ function AreaMap({
         );
     }
 
+    const MissionPrompt = () =>
+    {
+        console.log(player.mission_stage, currentLocation);
+        if (!player.mission_id) return null;
+        if (player.mission_stage['action_type'] === 'travel' | player.mission_stage['action_type'] === 'search')
+        {
+            if (currentLocation.join('.') === player.mission_stage['action_data'])
+            {
+                return (
+                    <div>
+                        <a href={system.links['mission']}>
+                            <button className="button" style={{marginTop: '5px'}}>Go to Mission Location</button>
+                        </a>
+                        <br/>
+                    </div>
+                );
+            }
+            else if (player.mission_stage['action_type'] === 'combat')
+            {
+                return (
+                    <div>
+                        <h3>Warning: Attempting to travel will cancel your mission!</h3>
+                    </div>
+                );
+            }
+
+        }
+        return null;
+    }
     return (
         <table id='scoutTable' className='table'>
             <tbody>
                 <tr>
-                    <th colSpan='5'>Your location: {currentLocation[0]}.{currentLocation[1]}</th>
+                    <th colSpan='5'>Your location: {currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village})` : currentLocation.join('.')}</th>
                 </tr>
                 <tr>
                     <td colSpan='5' style={{textAlign: "center"}}>
+                        <MissionPrompt />
                         <span style={{fontStyle: 'italic', marginBottom: '3px', display: 'inline-block', fontSize: '0.9em'}}>
                             (Use WASD, arrow keys, or the arrows below)
                         </span>

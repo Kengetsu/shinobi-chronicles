@@ -2,6 +2,7 @@ import { apiFetch } from "../utils/network.js";
 
 function AreaMap({
   player: player,
+  system: system,
   travelApiLink: travelApiLink,
   mapSize: mapSize,
   villages: villages,
@@ -57,41 +58,6 @@ function AreaMap({
         src: "../images/ninja_head.png"
       }) : '')));
     });
-    /*
-     <tr key={row[0]}>
-         {row.map(cellId => (
-                 villages[index + '.' + cellId] ?
-                 <td key={cellId} className='village' style={{
-                     backgroundImage: './images/village_icons/' + villageIcons[villages[key]]['count'],
-                     backgroundColor: key === player.village_location ? '#FFEF30' : '',
-                 }}></td>
-                 :
-                 <td key={cellId}>
-                     {cellId}
-                     {(0 === currentLocation[1] && 0 === currentLocation[0]) ?
-                         <img src='../images/ninja_head.png'/> : ''}
-                 </td>
-             )
-         )}
-     </tr>
-    ))
-    );*/
-
-    /*
-    <tr>
-        {villages[currentLocation] ?
-            <td className='village' style={{
-                backgroundImage: './images/village_icons/' + villageIcons[villages[key]]['count'],
-                backgroundColor: key === player.village_location ? '#FFEF30' : '',
-            }}></td>
-            :
-            <td>
-                {(0 === currentLocation[1] && 0 === currentLocation[0]) ?
-                    <img src='../images/ninja_head.png'/> : ''}
-            </td>
-        }
-    </tr>
-     */
   };
 
   const RenderMap = () => {
@@ -107,17 +73,39 @@ function AreaMap({
     }, /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement(Board, null)));
   };
 
+  const MissionPrompt = () => {
+    console.log(player.mission_stage, currentLocation);
+    if (!player.mission_id) return null;
+
+    if (player.mission_stage['action_type'] === 'travel' | player.mission_stage['action_type'] === 'search') {
+      if (currentLocation.join('.') === player.mission_stage['action_data']) {
+        return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("a", {
+          href: system.links['mission']
+        }, /*#__PURE__*/React.createElement("button", {
+          className: "button",
+          style: {
+            marginTop: '5px'
+          }
+        }, "Go to Mission Location")), /*#__PURE__*/React.createElement("br", null));
+      } else if (player.mission_stage['action_type'] === 'combat') {
+        return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "Warning: Attempting to travel will cancel your mission!"));
+      }
+    }
+
+    return null;
+  };
+
   return /*#__PURE__*/React.createElement("table", {
     id: "scoutTable",
     className: "table"
   }, /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
     colSpan: "5"
-  }, "Your location: ", currentLocation[0], ".", currentLocation[1])), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+  }, "Your location: ", currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village})` : currentLocation.join('.'))), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
     colSpan: "5",
     style: {
       textAlign: "center"
     }
-  }, /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(MissionPrompt, null), /*#__PURE__*/React.createElement("span", {
     style: {
       fontStyle: 'italic',
       marginBottom: '3px',
