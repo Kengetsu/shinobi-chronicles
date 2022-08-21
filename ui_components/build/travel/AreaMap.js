@@ -6,7 +6,14 @@ const AreaMap = ({
   travelApiLink: travelApiLink
 }) => {
   const [currentLocation, setLocation] = React.useState([player.x, player.y]);
+  const [isTraveling, setIsTraveling] = React.useState(false);
   const [error, setError] = React.useState(null);
+
+  const updateLocation = newLocation => {
+    apiFetch(travelApiLink, {
+      travel: newLocation
+    }).then(handleApiResponse);
+  };
 
   const handleApiResponse = response => {
     //console.log(response);
@@ -21,18 +28,55 @@ const AreaMap = ({
     }
   };
 
-  const updateLocation = newLocation => {
-    apiFetch(travelApiLink, {
-      travel: newLocation
-    }).then(handleApiResponse);
+  const handleKeyInput = evt => {
+    //console.log(evt);
+    const leftArrow = 37;
+    const upArrow = 38;
+    const rightArrow = 39;
+    const downArrow = 40;
+    const aUpper = 65;
+    const aLower = 97;
+    const wUpper = 87;
+    const wLower = 119;
+    const dUpper = 68;
+    const dLower = 100;
+    const sUpper = 83;
+    const sLower = 115;
+    if (isTraveling) return false;
+    let direction = '';
+
+    if (evt.which === leftArrow || evt.which === aLower || evt.which === aUpper) {
+      direction = 'west';
+    } else if (evt.which === upArrow || evt.which === wLower || evt.which === wUpper) {
+      direction = 'north';
+    } else if (evt.which === rightArrow || evt.which === dLower || evt.which === dUpper) {
+      direction = 'east';
+    } else if (evt.which === downArrow || evt.which === sLower || evt.which === sUpper) {
+      direction = 'south';
+    }
+
+    if (direction.length > 1) {
+      setIsTraveling(true);
+      updateLocation(direction);
+    }
   };
 
-  return /*#__PURE__*/React.createElement("table", {
+  React.useEffect(() => {
+    document.addEventListener('keydown', e => {
+      e.preventDefault();
+      handleKeyInput(e);
+    });
+  });
+  return [/*#__PURE__*/React.createElement("p", {
+    key: "systemMessage",
+    className: "systemMessage"
+  }, error), /*#__PURE__*/React.createElement("table", {
+    key: "scoutTable",
     id: "scoutTable",
     className: "table"
   }, /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
     colSpan: "5"
-  }, "Your location: ", currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village})` : currentLocation.join('.'))), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+  }, "Your location: ", currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village} Village)` : currentLocation.join('.'))), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
     colSpan: "5",
     style: {
       textAlign: "center"
@@ -54,37 +98,35 @@ const AreaMap = ({
   }, /*#__PURE__*/React.createElement("div", {
     id: "AreaMap",
     className: "mapContainer"
-  }, /*#__PURE__*/React.createElement("p", {
-    className: "systemMessage"
-  }, error), /*#__PURE__*/React.createElement(RenderMap, {
+  }, /*#__PURE__*/React.createElement(RenderMap, {
     currentLocation: currentLocation
-  }), /*#__PURE__*/React.createElement("button", {
+  }), /*#__PURE__*/React.createElement("a", {
     onClick: () => updateLocation('north'),
     className: "travelButton north"
   }, /*#__PURE__*/React.createElement("span", {
     className: "upArrow"
-  })), /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("a", {
     onClick: () => updateLocation('east'),
     className: "travelButton east"
   }, /*#__PURE__*/React.createElement("span", {
     className: "rightArrow"
-  })), /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("a", {
     onClick: () => updateLocation('south'),
     className: "travelButton south"
   }, /*#__PURE__*/React.createElement("span", {
     className: "downArrow"
-  })), /*#__PURE__*/React.createElement("button", {
+  })), /*#__PURE__*/React.createElement("a", {
     onClick: () => updateLocation('west'),
     className: "travelButton west"
   }, /*#__PURE__*/React.createElement("span", {
     className: "leftArrow"
-  }))))))));
+  }))))))))];
 };
 
 const MissionPrompt = ({
-  player,
-  system,
-  currentLocation
+  player: player,
+  system: system,
+  currentLocation: currentLocation
 }) => {
   //console.log(player.mission_stage, currentLocation);
   if (!player.mission_id) return null;
@@ -108,10 +150,10 @@ const MissionPrompt = ({
 };
 
 const Board = ({
-  mapSize,
-  villages,
-  villageIcons,
-  currentLocation
+  mapSize: mapSize,
+  villages: villages,
+  villageIcons: villageIcons,
+  currentLocation: currentLocation
 }) => {
   let maxX = mapSize[0];
   let maxY = mapSize[1];
@@ -143,7 +185,7 @@ const Board = ({
 };
 
 const RenderMap = ({
-  currentLocation
+  currentLocation: currentLocation
 }) => {
   return /*#__PURE__*/React.createElement("table", {
     className: "map",

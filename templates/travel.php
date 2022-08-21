@@ -5,7 +5,7 @@
  */
 
 ?>
-<!--<link rel="stylesheet" type="text/css" href="ui_components/src/travel/Map.css" />-->
+<link rel="stylesheet" type="text/css" href="ui_components/src/travel/Travel.css" />
 <div id="travelMapContainer"></div>
 <script type="module" src="<?= $system->getReactFile("travel/AreaMap") ?>"></script>
 <!--suppress JSUnresolvedVariable, JSUnresolvedFunction -->

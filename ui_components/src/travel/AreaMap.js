@@ -2,12 +2,13 @@ import { apiFetch } from "../utils/network.js";
 
 
 type Props = {|
-    +player: Array,
-    +system: Array,
+    +player: JSON,
+    +system: JSON,
     +travelApiLink: string,
     +mapSize: Array,
-    +villages: Array,
+    +villages: JSON,
     +villageIcons: Array,
+    +currentLocation: Array,
 |};
 
 const AreaMap = ({
@@ -15,10 +16,17 @@ const AreaMap = ({
         system: system,
         travelApiLink: travelApiLink,
 
-}: Props) => {
+}) => {
     const [currentLocation, setLocation] = React.useState([player.x, player.y]);
+    const [isTraveling, setIsTraveling] = React.useState(false);
     const [error, setError] = React.useState(null);
 
+    const updateLocation = (newLocation) =>
+    {
+        apiFetch(travelApiLink, {travel: newLocation})
+            .then(handleApiResponse);
+
+    };
     const handleApiResponse = (response) => {
         //console.log(response);
         if (response.data.location != null && response.data.location.length > 0) {
@@ -32,17 +40,61 @@ const AreaMap = ({
         }
     };
 
-    const updateLocation = (newLocation) =>
+    const handleKeyInput = (evt) =>
     {
-        apiFetch(travelApiLink, {travel: newLocation})
-            .then(handleApiResponse);
+        //console.log(evt);
+        const leftArrow = 37;
+        const upArrow = 38;
+        const rightArrow = 39;
+        const downArrow = 40;
 
+        const aUpper = 65;
+        const aLower = 97;
+
+        const wUpper = 87;
+        const wLower = 119;
+
+        const dUpper = 68;
+        const dLower = 100;
+
+        const sUpper = 83;
+        const sLower = 115;
+
+        if (isTraveling) return false;
+        let direction = '';
+        if(evt.which === leftArrow || evt.which === aLower || evt.which === aUpper) {
+            direction = 'west';
+        }
+        else if(evt.which === upArrow || evt.which === wLower || evt.which === wUpper) {
+            direction = 'north';
+        }
+        else if(evt.which === rightArrow || evt.which === dLower || evt.which === dUpper) {
+            direction = 'east';
+        }
+        else if(evt.which === downArrow || evt.which === sLower || evt.which === sUpper) {
+            direction = 'south';
+        }
+
+        if(direction.length > 1) {
+
+            setIsTraveling(true);
+            updateLocation(direction);
+        }
     };
-    return (
-        <table id='scoutTable' className='table'>
+
+    React.useEffect(() => {
+        document.addEventListener('keydown', (e) => {
+            e.preventDefault();
+            handleKeyInput(e);
+        })
+    })
+
+    return ([
+        <p key='systemMessage' className='systemMessage'>{error}</p>,
+        <table key='scoutTable' id='scoutTable' className='table'>
             <tbody>
                 <tr>
-                    <th colSpan='5'>Your location: {currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village})` : currentLocation.join('.')}</th>
+                    <th colSpan='5'>Your location: {currentLocation.join('.') === player.village_location ? `${currentLocation.join('.')} (${player.village} Village)` : currentLocation.join('.')}</th>
                 </tr>
                 <tr>
                     <td colSpan='5' style={{textAlign: "center"}}>
@@ -52,31 +104,31 @@ const AreaMap = ({
                         </span>
                         <div id='TravelContainer' className='travelContainer'>
                             <div id='AreaMap' className='mapContainer'>
-                                <p className='systemMessage'>{error}</p>
                                 <RenderMap currentLocation={currentLocation}/>
-                                <button onClick={() => updateLocation('north')} className='travelButton north'>
+                                <a onClick={() => updateLocation('north')} className='travelButton north'>
                                     <span className='upArrow'></span>
-                                </button>
-                                <button onClick={() => updateLocation('east')} className='travelButton east'>
+                                </a>
+                                <a onClick={() => updateLocation('east')} className='travelButton east'>
                                     <span className='rightArrow'></span>
-                                </button>
-                                <button onClick={() => updateLocation('south')} className='travelButton south'>
+                                </a>
+                                <a onClick={() => updateLocation('south')} className='travelButton south'>
                                     <span className='downArrow'></span>
-                                </button>
-                                <button onClick={() => updateLocation('west')} className='travelButton west'>
+                                </a>
+                                <a onClick={() => updateLocation('west')} className='travelButton west'>
                                     <span className='leftArrow'></span>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-    );
+    ]);
 
 };
 
-const MissionPrompt = ({player, system, currentLocation}) =>
+
+const MissionPrompt = ({player: player, system: system, currentLocation: currentLocation}) =>
 {
     //console.log(player.mission_stage, currentLocation);
     if (!player.mission_id) return null;
@@ -106,7 +158,7 @@ const MissionPrompt = ({player, system, currentLocation}) =>
     return null;
 };
 
-const Board = ({mapSize, villages, villageIcons, currentLocation, }) => {
+const Board = ({mapSize: mapSize, villages: villages, villageIcons: villageIcons, currentLocation: currentLocation}) => {
     let maxX = mapSize[0];
     let maxY = mapSize[1];
     let board = Array.from(
@@ -144,7 +196,7 @@ const Board = ({mapSize, villages, villageIcons, currentLocation, }) => {
         }));
 };
 
-const RenderMap = ({currentLocation}) =>
+const RenderMap = ({currentLocation: currentLocation}) =>
 {
     return (
         <table className='map' style={{
@@ -160,4 +212,6 @@ const RenderMap = ({currentLocation}) =>
         </table>
     );
 }
+
+
 window.AreaMap = AreaMap;
