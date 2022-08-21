@@ -140,7 +140,8 @@ class System {
         'discord' => 'https://discord.gg/Kx52dbXEf3',
     ];
     public array $api_links = [
-        'battle' => ''
+        'battle' => '',
+        'travel' => ''
     ];
 
     //Chat variables
@@ -249,6 +250,7 @@ class System {
         }
 
         $this->api_links['battle'] = $this->link . 'api/battle.php';
+        $this->api_links['travel'] = $this->link . 'api/travel.php';
 
         $this->timezoneOffset = date('Z');
 

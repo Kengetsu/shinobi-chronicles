@@ -213,6 +213,8 @@ function travel() {
     );
 
 	echo "</table>";
+
+    require 'templates/travel.php';
 }
 
 
@@ -241,5 +243,22 @@ function renderMap($player, $villages, $icons) {
     $output .= "</table>";
 
     return $output;
+}
+
+function TravelAPI(System $system, User $player, String $newLocation): TravelPageAPIResponse
+{
+    $response = new TravelPageAPIResponse();
+
+    try {
+        $result = Travel::moveDirection($system, $player, $newLocation);
+
+        $response->location_data = $result;
+        $response->location_result = $newLocation;
+    }
+    catch (Exception $e) {
+        $response->errors[] = $e->getMessage();
+    }
+    return $response;
+
 }
 

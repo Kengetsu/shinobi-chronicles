@@ -26,3 +26,6 @@ require_once __DIR__ . "/battle/BattlePageAPIResponse.php";
 
 require_once __DIR__ . "/Notifications.php";
 require_once __DIR__ . "/NearbyPlayers.php";
+
+require_once __DIR__ . "/travel/Travel.php";
+require_once __DIR__ . "/travel/TravelPageAPIResponse.php";
