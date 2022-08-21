@@ -1,13 +1,10 @@
 import { apiFetch } from "../utils/network.js";
 
-function AreaMap({
+const AreaMap = ({
   player: player,
   system: system,
-  travelApiLink: travelApiLink,
-  mapSize: mapSize,
-  villages: villages,
-  villageIcons: villageIcons
-}) {
+  travelApiLink: travelApiLink
+}) => {
   const [currentLocation, setLocation] = React.useState([player.x, player.y]);
   const [error, setError] = React.useState(null);
 
@@ -30,71 +27,6 @@ function AreaMap({
     }).then(handleApiResponse);
   };
 
-  const Board = () => {
-    let maxX = mapSize[0];
-    let maxY = mapSize[1];
-    let board = Array.from({
-      length: maxY
-    }, (_, i) => Array.from({
-      length: maxX
-    }, (_, j) => [j + 1, i + 1].join('.'))); //console.log(villages, villageIcons);
-
-    return board.map((row, index) => {
-      index += 1;
-      return /*#__PURE__*/React.createElement("tr", {
-        key: row[index]
-      }, row.map(cellId => villages[cellId] ? /*#__PURE__*/React.createElement("td", {
-        key: cellId,
-        className: "village",
-        style: {
-          backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
-          backgroundColor: cellId === player.village_location ? '#FFEF30' : ''
-        }
-      }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
-        src: "../images/ninja_head.png"
-      }) : '') : /*#__PURE__*/React.createElement("td", {
-        key: cellId
-      }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
-        src: "../images/ninja_head.png"
-      }) : '')));
-    });
-  };
-
-  const RenderMap = () => {
-    return /*#__PURE__*/React.createElement("table", {
-      className: "map",
-      style: {
-        padding: '0',
-        border: '1px solid #000',
-        borderCollapse: 'collapse',
-        borderSpacing: '0',
-        borderRadius: '0'
-      }
-    }, /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement(Board, null)));
-  };
-
-  const MissionPrompt = () => {
-    console.log(player.mission_stage, currentLocation);
-    if (!player.mission_id) return null;
-
-    if (player.mission_stage['action_type'] === 'travel' | player.mission_stage['action_type'] === 'search') {
-      if (currentLocation.join('.') === player.mission_stage['action_data']) {
-        return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("a", {
-          href: system.links['mission']
-        }, /*#__PURE__*/React.createElement("button", {
-          className: "button",
-          style: {
-            marginTop: '5px'
-          }
-        }, "Go to Mission Location")), /*#__PURE__*/React.createElement("br", null));
-      } else if (player.mission_stage['action_type'] === 'combat') {
-        return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "Warning: Attempting to travel will cancel your mission!"));
-      }
-    }
-
-    return null;
-  };
-
   return /*#__PURE__*/React.createElement("table", {
     id: "scoutTable",
     className: "table"
@@ -105,7 +37,11 @@ function AreaMap({
     style: {
       textAlign: "center"
     }
-  }, /*#__PURE__*/React.createElement(MissionPrompt, null), /*#__PURE__*/React.createElement("span", {
+  }, /*#__PURE__*/React.createElement(MissionPrompt, {
+    player: player,
+    system: system,
+    currentLocation: currentLocation
+  }), /*#__PURE__*/React.createElement("span", {
     style: {
       fontStyle: 'italic',
       marginBottom: '3px',
@@ -120,7 +56,9 @@ function AreaMap({
     className: "mapContainer"
   }, /*#__PURE__*/React.createElement("p", {
     className: "systemMessage"
-  }, error), /*#__PURE__*/React.createElement(RenderMap, null), /*#__PURE__*/React.createElement("button", {
+  }, error), /*#__PURE__*/React.createElement(RenderMap, {
+    currentLocation: currentLocation
+  }), /*#__PURE__*/React.createElement("button", {
     onClick: () => updateLocation('north'),
     className: "travelButton north"
   }, /*#__PURE__*/React.createElement("span", {
@@ -141,6 +79,87 @@ function AreaMap({
   }, /*#__PURE__*/React.createElement("span", {
     className: "leftArrow"
   }))))))));
-}
+};
+
+const MissionPrompt = ({
+  player,
+  system,
+  currentLocation
+}) => {
+  //console.log(player.mission_stage, currentLocation);
+  if (!player.mission_id) return null;
+
+  if (player.mission_stage['action_type'] === 'travel' || player.mission_stage['action_type'] === 'search') {
+    if (currentLocation.join('.') === player.mission_stage['action_data']) {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("a", {
+        href: system.links['mission']
+      }, /*#__PURE__*/React.createElement("button", {
+        className: "button",
+        style: {
+          marginTop: '5px'
+        }
+      }, "Go to Mission Location")), /*#__PURE__*/React.createElement("br", null));
+    } else if (player.mission_stage['action_type'] === 'combat') {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h3", null, "Warning: Attempting to travel will cancel your mission!"));
+    }
+  }
+
+  return null;
+};
+
+const Board = ({
+  mapSize,
+  villages,
+  villageIcons,
+  currentLocation
+}) => {
+  let maxX = mapSize[0];
+  let maxY = mapSize[1];
+  let board = Array.from({
+    length: maxY
+  }, (_, i) => Array.from({
+    length: maxX
+  }, (_, j) => [j + 1, i + 1].join('.'))); //console.log(villages, villageIcons);
+
+  return board.map((row, index) => {
+    index += 1;
+    return /*#__PURE__*/React.createElement("tr", {
+      key: row[index]
+    }, row.map(cellId => villages[cellId] ? /*#__PURE__*/React.createElement("td", {
+      key: cellId,
+      className: "village",
+      style: {
+        backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
+        backgroundColor: cellId === player.village_location ? '#FFEF30' : ''
+      }
+    }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
+      src: "../images/ninja_head.png"
+    }) : '') : /*#__PURE__*/React.createElement("td", {
+      key: cellId
+    }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
+      src: "../images/ninja_head.png"
+    }) : '')));
+  });
+};
+
+const RenderMap = ({
+  currentLocation
+}) => {
+  return /*#__PURE__*/React.createElement("table", {
+    className: "map",
+    style: {
+      padding: '0',
+      border: '1px solid #000',
+      borderCollapse: 'collapse',
+      borderSpacing: '0',
+      borderRadius: '0'
+    }
+  }, /*#__PURE__*/React.createElement("tbody", null, /*#__PURE__*/React.createElement(Board, {
+    mapSize: mapSize,
+    villages: villages,
+    villageIcons: villageIcons,
+    currentLocation: currentLocation
+  })));
+};
 
 window.AreaMap = AreaMap;

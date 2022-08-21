@@ -10,15 +10,12 @@ type Props = {|
     +villageIcons: Array,
 |};
 
-function AreaMap({
+const AreaMap = ({
         player: player,
         system: system,
         travelApiLink: travelApiLink,
-        mapSize: mapSize,
-        villages: villages,
-        villageIcons: villageIcons,
 
-}: Props) {
+}: Props) => {
     const [currentLocation, setLocation] = React.useState([player.x, player.y]);
     const [error, setError] = React.useState(null);
 
@@ -41,89 +38,6 @@ function AreaMap({
             .then(handleApiResponse);
 
     };
-    const Board = () => {
-        let maxX = mapSize[0];
-        let maxY = mapSize[1];
-        let board = Array.from(
-            {length: maxY},
-            (_, i) => Array.from(
-                {length: maxX},
-                (_, j) => [j + 1, i + 1].join('.')
-            )
-        );
-
-        //console.log(villages, villageIcons);
-        return (
-            board.map((row, index) => {
-                index += 1;
-                return (
-                    <tr key={row[index]}>
-                        {row.map(cellId => (
-                                villages[cellId] ?
-                                    <td key={cellId} className='village' style={{
-                                        backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
-                                        backgroundColor: cellId === player.village_location ? '#FFEF30' : '',
-                                    }}>
-                                        {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                            <img src='../images/ninja_head.png'/> : ''}
-                                    </td>
-                                    :
-                                    <td key={cellId}>
-                                        {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                            <img src='../images/ninja_head.png'/> : ''}
-                                    </td>
-                            )
-                        )}
-                    </tr>
-                );
-            }));
-    }
-    const RenderMap = () =>
-    {
-        return (
-            <table className='map' style={{
-                padding: '0',
-                border: '1px solid #000',
-                borderCollapse: 'collapse',
-                borderSpacing: '0',
-                borderRadius: '0',
-            }}>
-                <tbody>
-                    <Board />
-                </tbody>
-            </table>
-        );
-    }
-
-    const MissionPrompt = () =>
-    {
-        console.log(player.mission_stage, currentLocation);
-        if (!player.mission_id) return null;
-        if (player.mission_stage['action_type'] === 'travel' | player.mission_stage['action_type'] === 'search')
-        {
-            if (currentLocation.join('.') === player.mission_stage['action_data'])
-            {
-                return (
-                    <div>
-                        <a href={system.links['mission']}>
-                            <button className="button" style={{marginTop: '5px'}}>Go to Mission Location</button>
-                        </a>
-                        <br/>
-                    </div>
-                );
-            }
-            else if (player.mission_stage['action_type'] === 'combat')
-            {
-                return (
-                    <div>
-                        <h3>Warning: Attempting to travel will cancel your mission!</h3>
-                    </div>
-                );
-            }
-
-        }
-        return null;
-    }
     return (
         <table id='scoutTable' className='table'>
             <tbody>
@@ -132,14 +46,14 @@ function AreaMap({
                 </tr>
                 <tr>
                     <td colSpan='5' style={{textAlign: "center"}}>
-                        <MissionPrompt />
+                        <MissionPrompt player={player} system={system} currentLocation={currentLocation}/>
                         <span style={{fontStyle: 'italic', marginBottom: '3px', display: 'inline-block', fontSize: '0.9em'}}>
                             (Use WASD, arrow keys, or the arrows below)
                         </span>
                         <div id='TravelContainer' className='travelContainer'>
                             <div id='AreaMap' className='mapContainer'>
                                 <p className='systemMessage'>{error}</p>
-                                <RenderMap />
+                                <RenderMap currentLocation={currentLocation}/>
                                 <button onClick={() => updateLocation('north')} className='travelButton north'>
                                     <span className='upArrow'></span>
                                 </button>
@@ -160,6 +74,90 @@ function AreaMap({
         </table>
     );
 
-}
+};
 
+const MissionPrompt = ({player, system, currentLocation}) =>
+{
+    //console.log(player.mission_stage, currentLocation);
+    if (!player.mission_id) return null;
+    if (player.mission_stage['action_type'] === 'travel' || player.mission_stage['action_type'] === 'search')
+    {
+        if (currentLocation.join('.') === player.mission_stage['action_data'])
+        {
+            return (
+                <div>
+                    <a href={system.links['mission']}>
+                        <button className="button" style={{marginTop: '5px'}}>Go to Mission Location</button>
+                    </a>
+                    <br/>
+                </div>
+            );
+        }
+        else if (player.mission_stage['action_type'] === 'combat')
+        {
+            return (
+                <div>
+                    <h3>Warning: Attempting to travel will cancel your mission!</h3>
+                </div>
+            );
+        }
+
+    }
+    return null;
+};
+
+const Board = ({mapSize, villages, villageIcons, currentLocation, }) => {
+    let maxX = mapSize[0];
+    let maxY = mapSize[1];
+    let board = Array.from(
+        {length: maxY},
+        (_, i) => Array.from(
+            {length: maxX},
+            (_, j) => [j + 1, i + 1].join('.')
+        )
+    );
+
+    //console.log(villages, villageIcons);
+    return (
+        board.map((row, index) => {
+            index += 1;
+            return (
+                <tr key={row[index]}>
+                    {row.map(cellId => (
+                            villages[cellId] ?
+                                <td key={cellId} className='village' style={{
+                                    backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
+                                    backgroundColor: cellId === player.village_location ? '#FFEF30' : '',
+                                }}>
+                                    {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
+                                        <img src='../images/ninja_head.png'/> : ''}
+                                </td>
+                                :
+                                <td key={cellId}>
+                                    {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
+                                        <img src='../images/ninja_head.png'/> : ''}
+                                </td>
+                        )
+                    )}
+                </tr>
+            );
+        }));
+};
+
+const RenderMap = ({currentLocation}) =>
+{
+    return (
+        <table className='map' style={{
+            padding: '0',
+            border: '1px solid #000',
+            borderCollapse: 'collapse',
+            borderSpacing: '0',
+            borderRadius: '0',
+        }}>
+            <tbody>
+            <Board mapSize={mapSize} villages={villages} villageIcons={villageIcons} currentLocation={currentLocation}/>
+            </tbody>
+        </table>
+    );
+}
 window.AreaMap = AreaMap;
