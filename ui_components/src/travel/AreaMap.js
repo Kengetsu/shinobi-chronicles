@@ -152,7 +152,7 @@ const AreaMap = ({
                         </div>
                     </td>
                 </tr>
-                <ScoutTable rankData={rankData} scoutData={scoutData}/>
+                <ScoutTable rankData={rankData} scoutData={scoutData} currentLocation={currentLocation}/>
             </tbody>
         </table>
     ]);
@@ -214,12 +214,12 @@ const Board = ({mapSize: mapSize, villages: villages, villageIcons: villageIcons
                                     backgroundColor: cellId === player.village_location ? '#FFEF30' : null,
                                 }}>
                                     {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                        <img src='../images/ninja_head.png'/> : null}
+                                        <img alt='Player Icon' src='../images/ninja_head.png'/> : null}
                                 </td>
                                 :
                                 <td key={cellId}>
                                     {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                        <img src='../images/ninja_head.png'/> : null}
+                                        <img alt='Player Icon' src='../images/ninja_head.png'/> : null}
                                 </td>
                         )
                     )}
@@ -244,12 +244,41 @@ const RenderMap = ({currentLocation: currentLocation}) =>
         </table>
     );
 }
+/*
+echo "<tr><th {$colspan_attr}>Scout Area (Scout Range: $player->scout_range squares)</th></tr>";
 
-const ScoutTable = ({scoutData: scoutData, rankData: rankData}) =>
+        if(!$in_existing_table) {
+            echo "<tr><td style='text-align:center;'>
+        You can view other ninja within your scout range here. You can also attack or issue spar challenges if allowed.
+        </td></tr></table>
+        <table class='table'>";
+        }
+
+        echo "<tr>
+		<th style='width:28%;'>Username</th>
+		<th style='width:20%;'>Rank</th>
+		<th style='width:17%;'>Village</th>
+		<th style='width:17%;'>Location</th>
+		<th style='width:18%;'>&nbsp;</th>
+	</tr>";
+ */
+const ScoutTable = ({scoutData: scoutData, rankData: rankData, currentLocation: currentLocation}) =>
 {
-    const [error, setError] = React.useState(null);
+    return ([
+        <tr>
 
-    return (
+            <td style={{textAlign: 'center'}} colSpan='5'>
+                <br/>
+                You can view other ninja within your scout range here. You can also attack or issue spar challenges.
+            </td>
+        </tr>,
+        <tr>
+            <th style={{width: '28%'}}>Username</th>
+            <th style={{width: '20%'}}>Rank</th>
+            <th style={{width: '17%'}}>Village</th>
+            <th style={{width: '17%'}}>Location</th>
+            <th style={{width: '18%'}}>&nbsp;</th>
+        </tr>,
         scoutData.map((user) => {
             return (
                 <tr key={user.user_name} className='table_multicolumns'>
@@ -260,7 +289,7 @@ const ScoutTable = ({scoutData: scoutData, rankData: rankData}) =>
                         {rankData[user.rank - 1]}
                     </td>
                     <td style={{width: '17%', textAlign: 'center'}}>
-                        <img src={`./images/village_icons/${user.village.toLowerCase()}.png`} style={{maxHeight: '18px', maxWidth: '18px'}}/>
+                        <img alt={`${user.village} Village Icon`} src={`./images/village_icons/${user.village.toLowerCase()}.png`} style={{maxHeight: '18px', maxWidth: '18px'}}/>
                         <span style={{fontWeight: 'bold', color: (user.village === player.village) ? '#00C000' : '#C00000'}}>
                             {user.village}
                         </span>
@@ -269,21 +298,15 @@ const ScoutTable = ({scoutData: scoutData, rankData: rankData}) =>
                         {user.location}
                     </td>
                     <td style={{width: '18%', textAlign: 'center'}}>
-                        {(parseInt(user.user_id) !== player.user_id && user.location === player.location) ?
-                            <CombatLinks system={system} player={player} opponent={user}/>
-                            :
-                            null
-                        }
-
-
+                        <CombatLinks system={system} player={player} opponent={user} currentLocation={currentLocation}/>
                     </td>
                 </tr>
             )
         })
-    );
+    ]);
 };
 
-const CombatLinks = ({system: system, player: player, opponent: opponent}) =>
+const CombatLinks = ({system: system, player: player, opponent: opponent, currentLocation: currentLocation}) =>
 {
     let links = [];
 
@@ -291,15 +314,16 @@ const CombatLinks = ({system: system, player: player, opponent: opponent}) =>
     {
        return 'In battle';
     }
-
-    links.push(<a href={`${system.links['spar']}&challenge=${opponent.user_id}`}>Spar</a>);
-
-    if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2)
+    if (parseInt(opponent.user_id) !== player.user_id && opponent.location === currentLocation.join('.'))
     {
-        links.push('|');
-        links.push(<a href={`${system.links['battle']}&attack=${opponent.user_id}`}>Attack</a> )
-    }
+        links.push(<a key={`${opponent.user_id}_spar`} href={`${system.links['spar']}&challenge=${opponent.user_id}`}>Spar</a>);
 
+        if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2)
+        {
+            links.push('|');
+            links.push(<a key={`${opponent.user_id}_attack`} href={`${system.links['battle']}&attack=${opponent.user_id}`}>Attack</a> )
+        }
+    }
     //console.log(links);
     return (links);
 };

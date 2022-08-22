@@ -152,7 +152,8 @@ const AreaMap = ({
     className: "leftArrow"
   })))))), /*#__PURE__*/React.createElement(ScoutTable, {
     rankData: rankData,
-    scoutData: scoutData
+    scoutData: scoutData,
+    currentLocation: currentLocation
   })))];
 };
 
@@ -208,10 +209,12 @@ const Board = ({
         backgroundColor: cellId === player.village_location ? '#FFEF30' : null
       }
     }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
+      alt: "Player Icon",
       src: "../images/ninja_head.png"
     }) : null) : /*#__PURE__*/React.createElement("td", {
       key: cellId
     }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
+      alt: "Player Icon",
       src: "../images/ninja_head.png"
     }) : null)));
   });
@@ -236,13 +239,57 @@ const RenderMap = ({
     currentLocation: currentLocation
   })));
 };
+/*
+echo "<tr><th {$colspan_attr}>Scout Area (Scout Range: $player->scout_range squares)</th></tr>";
+
+        if(!$in_existing_table) {
+            echo "<tr><td style='text-align:center;'>
+        You can view other ninja within your scout range here. You can also attack or issue spar challenges if allowed.
+        </td></tr></table>
+        <table class='table'>";
+        }
+
+        echo "<tr>
+		<th style='width:28%;'>Username</th>
+		<th style='width:20%;'>Rank</th>
+		<th style='width:17%;'>Village</th>
+		<th style='width:17%;'>Location</th>
+		<th style='width:18%;'>&nbsp;</th>
+	</tr>";
+ */
+
 
 const ScoutTable = ({
   scoutData: scoutData,
-  rankData: rankData
+  rankData: rankData,
+  currentLocation: currentLocation
 }) => {
-  const [error, setError] = React.useState(null);
-  return scoutData.map(user => {
+  return [/*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: 'center'
+    },
+    colSpan: "5"
+  }, /*#__PURE__*/React.createElement("br", null), "You can view other ninja within your scout range here. You can also attack or issue spar challenges.")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    style: {
+      width: '28%'
+    }
+  }, "Username"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      width: '20%'
+    }
+  }, "Rank"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      width: '17%'
+    }
+  }, "Village"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      width: '17%'
+    }
+  }, "Location"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      width: '18%'
+    }
+  }, "\xA0")), scoutData.map(user => {
     return /*#__PURE__*/React.createElement("tr", {
       key: user.user_name,
       className: "table_multicolumns"
@@ -263,6 +310,7 @@ const ScoutTable = ({
         textAlign: 'center'
       }
     }, /*#__PURE__*/React.createElement("img", {
+      alt: `${user.village} Village Icon`,
       src: `./images/village_icons/${user.village.toLowerCase()}.png`,
       style: {
         maxHeight: '18px',
@@ -283,18 +331,20 @@ const ScoutTable = ({
         width: '18%',
         textAlign: 'center'
       }
-    }, parseInt(user.user_id) !== player.user_id && user.location === player.location ? /*#__PURE__*/React.createElement(CombatLinks, {
+    }, /*#__PURE__*/React.createElement(CombatLinks, {
       system: system,
       player: player,
-      opponent: user
-    }) : null));
-  });
+      opponent: user,
+      currentLocation: currentLocation
+    })));
+  })];
 };
 
 const CombatLinks = ({
   system: system,
   player: player,
-  opponent: opponent
+  opponent: opponent,
+  currentLocation: currentLocation
 }) => {
   let links = [];
 
@@ -302,15 +352,19 @@ const CombatLinks = ({
     return 'In battle';
   }
 
-  links.push( /*#__PURE__*/React.createElement("a", {
-    href: `${system.links['spar']}&challenge=${opponent.user_id}`
-  }, "Spar"));
-
-  if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2) {
-    links.push('|');
+  if (parseInt(opponent.user_id) !== player.user_id && opponent.location === currentLocation.join('.')) {
     links.push( /*#__PURE__*/React.createElement("a", {
-      href: `${system.links['battle']}&attack=${opponent.user_id}`
-    }, "Attack"));
+      key: `${opponent.user_id}_spar`,
+      href: `${system.links['spar']}&challenge=${opponent.user_id}`
+    }, "Spar"));
+
+    if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2) {
+      links.push('|');
+      links.push( /*#__PURE__*/React.createElement("a", {
+        key: `${opponent.user_id}_attack`,
+        href: `${system.links['battle']}&attack=${opponent.user_id}`
+      }, "Attack"));
+    }
   } //console.log(links);
 
 
