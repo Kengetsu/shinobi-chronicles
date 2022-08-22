@@ -239,37 +239,29 @@ const RenderMap = ({
     currentLocation: currentLocation
   })));
 };
-/*
-echo "<tr><th {$colspan_attr}>Scout Area (Scout Range: $player->scout_range squares)</th></tr>";
-
-        if(!$in_existing_table) {
-            echo "<tr><td style='text-align:center;'>
-        You can view other ninja within your scout range here. You can also attack or issue spar challenges if allowed.
-        </td></tr></table>
-        <table class='table'>";
-        }
-
-        echo "<tr>
-		<th style='width:28%;'>Username</th>
-		<th style='width:20%;'>Rank</th>
-		<th style='width:17%;'>Village</th>
-		<th style='width:17%;'>Location</th>
-		<th style='width:18%;'>&nbsp;</th>
-	</tr>";
- */
-
 
 const ScoutTable = ({
   scoutData: scoutData,
   rankData: rankData,
   currentLocation: currentLocation
 }) => {
-  return [/*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+  return [/*#__PURE__*/React.createElement("tr", {
+    key: "ScoutHeader"
+  }, /*#__PURE__*/React.createElement("th", {
     style: {
       textAlign: 'center'
     },
     colSpan: "5"
-  }, /*#__PURE__*/React.createElement("br", null), "You can view other ninja within your scout range here. You can also attack or issue spar challenges.")), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+  }, "Scout Area (Scout Range: ", player.scout_range, " squares)")), /*#__PURE__*/React.createElement("tr", {
+    key: "ScoutDescription"
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      textAlign: 'center'
+    },
+    colSpan: "5"
+  }, /*#__PURE__*/React.createElement("br", null), "You can view other ninja within your scout range here. You can also attack or issue spar challenges.")), /*#__PURE__*/React.createElement("tr", {
+    key: "ScoutDataHeader"
+  }, /*#__PURE__*/React.createElement("th", {
     style: {
       width: '28%'
     }

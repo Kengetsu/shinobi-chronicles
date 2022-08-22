@@ -244,35 +244,22 @@ const RenderMap = ({currentLocation: currentLocation}) =>
         </table>
     );
 }
-/*
-echo "<tr><th {$colspan_attr}>Scout Area (Scout Range: $player->scout_range squares)</th></tr>";
 
-        if(!$in_existing_table) {
-            echo "<tr><td style='text-align:center;'>
-        You can view other ninja within your scout range here. You can also attack or issue spar challenges if allowed.
-        </td></tr></table>
-        <table class='table'>";
-        }
-
-        echo "<tr>
-		<th style='width:28%;'>Username</th>
-		<th style='width:20%;'>Rank</th>
-		<th style='width:17%;'>Village</th>
-		<th style='width:17%;'>Location</th>
-		<th style='width:18%;'>&nbsp;</th>
-	</tr>";
- */
 const ScoutTable = ({scoutData: scoutData, rankData: rankData, currentLocation: currentLocation}) =>
 {
     return ([
-        <tr>
-
+        <tr key='ScoutHeader'>
+            <th style={{textAlign: 'center'}} colSpan='5'>
+                Scout Area (Scout Range: {player.scout_range} squares)
+            </th>
+        </tr>,
+        <tr key='ScoutDescription'>
             <td style={{textAlign: 'center'}} colSpan='5'>
                 <br/>
                 You can view other ninja within your scout range here. You can also attack or issue spar challenges.
             </td>
         </tr>,
-        <tr>
+        <tr key='ScoutDataHeader'>
             <th style={{width: '28%'}}>Username</th>
             <th style={{width: '20%'}}>Rank</th>
             <th style={{width: '17%'}}>Village</th>
