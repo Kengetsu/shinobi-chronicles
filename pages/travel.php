@@ -210,14 +210,6 @@ function travel() {
 //	echo "</table>";
 
     require 'templates/travel.php';
-
-//    NearbyPlayers::renderScoutAreaList(
-//        system: $system,
-//        player: $player,
-//        self_link: $self_link,
-//        in_existing_table: true,
-//        show_spar_link: false
-//    );
 }
 
 
@@ -248,7 +240,7 @@ function renderMap($player, $villages, $icons) {
     return $output;
 }
 
-function TravelAPI(System $system, User $player, String $newLocation): TravelPageAPIResponse
+function TravelDirectionAPI(System $system, User $player, String $newLocation): TravelPageAPIResponse
 {
     $response = new TravelPageAPIResponse();
 
@@ -259,6 +251,24 @@ function TravelAPI(System $system, User $player, String $newLocation): TravelPag
         $response->location_result = $newLocation;
     }
     catch (Exception $e) {
+        $response->errors[] = $e->getMessage();
+    }
+    return $response;
+
+}
+
+function TravelScoutListAPI(System $system, User $player, Int $min, Int $max): TravelPageAPIResponse
+{
+    $response = new TravelPageAPIResponse();
+    try {
+        $result = NearbyPlayers::getNearbyPlayers($system, $player, $min, $max);
+
+        $response->rank_data = $result[0];
+        $response->scout_data = $result[1];
+
+    }
+    catch (Exception $e)
+    {
         $response->errors[] = $e->getMessage();
     }
     return $response;

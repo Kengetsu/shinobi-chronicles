@@ -8,11 +8,31 @@ const AreaMap = ({
   const [currentLocation, setLocation] = React.useState([player.x, player.y]);
   const [isTraveling, setIsTraveling] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [rankData, setRankData] = React.useState([]);
+  const [scoutData, setScoutData] = React.useState([]);
+
+  const updateScoutData = () => {
+    apiFetch(travelApiLink, {
+      scout: {
+        min: 0,
+        max: 30
+      }
+    }).then(handleApiResponse);
+  };
+
+  React.useEffect(() => {
+    updateScoutData();
+    const interval = setInterval(() => {
+      updateScoutData();
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const updateLocation = newLocation => {
     apiFetch(travelApiLink, {
       travel: newLocation
     }).then(handleApiResponse);
+    updateScoutData();
     setIsTraveling(false);
   };
 
@@ -20,6 +40,15 @@ const AreaMap = ({
     //console.log(response);
     if (response.data.location != null && response.data.location.length > 0) {
       setLocation(response.data.location);
+    }
+
+    if (response.data.scout_data != null && response.data.scout_data.length > 0) {
+      setScoutData(response.data.scout_data);
+    }
+
+    if (response.data.rank_data != null) {
+      //console.log(Object.values(response.data.rank_data));
+      setRankData(Object.values(response.data.rank_data));
     }
 
     if (response.errors.length > 0) {
@@ -121,7 +150,10 @@ const AreaMap = ({
     className: "travelButton west"
   }, /*#__PURE__*/React.createElement("span", {
     className: "leftArrow"
-  }))))))))];
+  })))))), /*#__PURE__*/React.createElement(ScoutTable, {
+    rankData: rankData,
+    scoutData: scoutData
+  })))];
 };
 
 const MissionPrompt = ({
@@ -173,15 +205,15 @@ const Board = ({
       className: "village",
       style: {
         backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
-        backgroundColor: cellId === player.village_location ? '#FFEF30' : ''
+        backgroundColor: cellId === player.village_location ? '#FFEF30' : null
       }
     }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
       src: "../images/ninja_head.png"
-    }) : '') : /*#__PURE__*/React.createElement("td", {
+    }) : null) : /*#__PURE__*/React.createElement("td", {
       key: cellId
     }, cellId === currentLocation[0] + '.' + currentLocation[1] ? /*#__PURE__*/React.createElement("img", {
       src: "../images/ninja_head.png"
-    }) : '')));
+    }) : null)));
   });
 };
 
@@ -203,6 +235,86 @@ const RenderMap = ({
     villageIcons: villageIcons,
     currentLocation: currentLocation
   })));
+};
+
+const ScoutTable = ({
+  scoutData: scoutData,
+  rankData: rankData
+}) => {
+  const [error, setError] = React.useState(null);
+  return scoutData.map(user => {
+    return /*#__PURE__*/React.createElement("tr", {
+      key: user.user_name,
+      className: "table_multicolumns"
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        width: '28%'
+      }
+    }, /*#__PURE__*/React.createElement("a", {
+      href: `${system.links['members']}&user=${user.user_name}`
+    }, user.user_name)), /*#__PURE__*/React.createElement("td", {
+      style: {
+        width: '20%',
+        textAlign: 'center'
+      }
+    }, rankData[user.rank - 1]), /*#__PURE__*/React.createElement("td", {
+      style: {
+        width: '17%',
+        textAlign: 'center'
+      }
+    }, /*#__PURE__*/React.createElement("img", {
+      src: `./images/village_icons/${user.village.toLowerCase()}.png`,
+      style: {
+        maxHeight: '18px',
+        maxWidth: '18px'
+      }
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontWeight: 'bold',
+        color: user.village === player.village ? '#00C000' : '#C00000'
+      }
+    }, user.village)), /*#__PURE__*/React.createElement("td", {
+      style: {
+        width: '17%',
+        textAlign: 'center'
+      }
+    }, user.location), /*#__PURE__*/React.createElement("td", {
+      style: {
+        width: '18%',
+        textAlign: 'center'
+      }
+    }, parseInt(user.user_id) !== player.user_id && user.location === player.location ? /*#__PURE__*/React.createElement(CombatLinks, {
+      system: system,
+      player: player,
+      opponent: user
+    }) : null));
+  });
+};
+
+const CombatLinks = ({
+  system: system,
+  player: player,
+  opponent: opponent
+}) => {
+  let links = [];
+
+  if (parseInt(opponent.battle_id) !== 0) {
+    return 'In battle';
+  }
+
+  links.push( /*#__PURE__*/React.createElement("a", {
+    href: `${system.links['spar']}&challenge=${opponent.user_id}`
+  }, "Spar"));
+
+  if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2) {
+    links.push('|');
+    links.push( /*#__PURE__*/React.createElement("a", {
+      href: `${system.links['battle']}&attack=${opponent.user_id}`
+    }, "Attack"));
+  } //console.log(links);
+
+
+  return links;
 };
 
 window.AreaMap = AreaMap;

@@ -17,23 +17,45 @@ require(__DIR__ . '/../pages/travel.php');
 $player->loadData(User::UPDATE_NOTHING);
 
 $newLocation = '';
+$scoutReturnSize = [];
 if(!empty($_POST['travel'])) {
     $newLocation = $_POST['travel'];
+
+    $response = TravelDirectionAPI($system, $player, $newLocation);
+    if(!($response instanceof TravelPageAPIResponse)) {
+        API::exitWithError("Invalid travel API response! - Expected TravelPageAPIResponse, got " . get_class($response));
+    }
+
+    API::exitWithData(
+        data: [
+            'location' => $response->location_data,
+            'newLocation' => $response->location_result,
+        ],
+        errors: $response->errors,
+        debug_messages: $system->debug_messages,
+    );
 }
 
-$response = TravelAPI($system, $player, $newLocation);
-if(!($response instanceof TravelPageAPIResponse)) {
-    API::exitWithError("Invalid travel API response! - Expected TravelPageAPIResponse, got " . get_class($response));
-}
+if(!empty($_POST['scout']))
+{
+    $scoutReturnSize = $_POST['scout'];
 
-API::exitWithData(
-    data: [
-        'location' => $response->location_data,
-        'newLocation' => $response->location_result,
-    ],
-    errors: $response->errors,
-    debug_messages: $system->debug_messages,
-);
+    $response = TravelScoutListAPI($system, $player, ...$scoutReturnSize);
+
+    if(!($response instanceof TravelPageAPIResponse)) {
+        API::exitWithError("Invalid travel API response! - Expected TravelPageAPIResponse, got " . get_class($response));
+    }
+
+    API::exitWithData(
+        data: [
+            'rank_data' => $response->rank_data,
+            'scout_data' => $response->scout_data,
+        ],
+        errors: $response->errors,
+        debug_messages: $system->debug_messages,
+    );
+
+}
 
 
 

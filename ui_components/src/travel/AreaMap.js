@@ -1,4 +1,4 @@
-import { apiFetch } from "../utils/network.js";
+import {apiFetch} from "../utils/network.js";
 
 
 type Props = {|
@@ -21,11 +21,32 @@ const AreaMap = ({
     const [isTraveling, setIsTraveling] = React.useState(false);
     const [error, setError] = React.useState(null);
 
+    const [rankData, setRankData] = React.useState([]);
+    const [scoutData, setScoutData] = React.useState([]);
+
+    const updateScoutData = () =>
+    {
+        apiFetch(travelApiLink, {scout: {min: 0, max: 30}})
+            .then(handleApiResponse);
+
+    };
+
+    React.useEffect(() => {
+        updateScoutData();
+
+        const  interval=setInterval(() =>
+        {
+            updateScoutData();
+        }, 3000);
+
+        return() => clearInterval(interval);
+    }, []);
+
     const updateLocation = (newLocation) =>
     {
         apiFetch(travelApiLink, {travel: newLocation})
             .then(handleApiResponse);
-
+        updateScoutData();
         setIsTraveling(false);
 
     };
@@ -33,6 +54,15 @@ const AreaMap = ({
         //console.log(response);
         if (response.data.location != null && response.data.location.length > 0) {
             setLocation(response.data.location);
+        }
+        if (response.data.scout_data != null && response.data.scout_data.length > 0)
+        {
+            setScoutData(response.data.scout_data);
+        }
+        if (response.data.rank_data != null)
+        {
+            //console.log(Object.values(response.data.rank_data));
+            setRankData(Object.values(response.data.rank_data));
         }
         if(response.errors.length > 0) {
             setError(response.errors.join(' '));
@@ -118,9 +148,11 @@ const AreaMap = ({
                                     <span className='leftArrow'></span>
                                 </a>
                             </div>
+
                         </div>
                     </td>
                 </tr>
+                <ScoutTable rankData={rankData} scoutData={scoutData}/>
             </tbody>
         </table>
     ]);
@@ -179,15 +211,15 @@ const Board = ({mapSize: mapSize, villages: villages, villageIcons: villageIcons
                             villages[cellId] ?
                                 <td key={cellId} className='village' style={{
                                     backgroundImage: `url('./images/village_icons/${villageIcons[villages[cellId]['count']]}`,
-                                    backgroundColor: cellId === player.village_location ? '#FFEF30' : '',
+                                    backgroundColor: cellId === player.village_location ? '#FFEF30' : null,
                                 }}>
                                     {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                        <img src='../images/ninja_head.png'/> : ''}
+                                        <img src='../images/ninja_head.png'/> : null}
                                 </td>
                                 :
                                 <td key={cellId}>
                                     {(cellId === currentLocation[0] + '.' + currentLocation[1]) ?
-                                        <img src='../images/ninja_head.png'/> : ''}
+                                        <img src='../images/ninja_head.png'/> : null}
                                 </td>
                         )
                     )}
@@ -213,5 +245,63 @@ const RenderMap = ({currentLocation: currentLocation}) =>
     );
 }
 
+const ScoutTable = ({scoutData: scoutData, rankData: rankData}) =>
+{
+    const [error, setError] = React.useState(null);
+
+    return (
+        scoutData.map((user) => {
+            return (
+                <tr key={user.user_name} className='table_multicolumns'>
+                    <td style={{width: '28%'}}>
+                        <a href={`${system.links['members']}&user=${user.user_name}`}>{user.user_name}</a>
+                    </td>
+                    <td style={{width: '20%', textAlign: 'center'}}>
+                        {rankData[user.rank - 1]}
+                    </td>
+                    <td style={{width: '17%', textAlign: 'center'}}>
+                        <img src={`./images/village_icons/${user.village.toLowerCase()}.png`} style={{maxHeight: '18px', maxWidth: '18px'}}/>
+                        <span style={{fontWeight: 'bold', color: (user.village === player.village) ? '#00C000' : '#C00000'}}>
+                            {user.village}
+                        </span>
+                    </td>
+                    <td style={{width: '17%', textAlign: 'center'}}>
+                        {user.location}
+                    </td>
+                    <td style={{width: '18%', textAlign: 'center'}}>
+                        {(parseInt(user.user_id) !== player.user_id && user.location === player.location) ?
+                            <CombatLinks system={system} player={player} opponent={user}/>
+                            :
+                            null
+                        }
+
+
+                    </td>
+                </tr>
+            )
+        })
+    );
+};
+
+const CombatLinks = ({system: system, player: player, opponent: opponent}) =>
+{
+    let links = [];
+
+    if (parseInt(opponent.battle_id) !== 0)
+    {
+       return 'In battle';
+    }
+
+    links.push(<a href={`${system.links['spar']}&challenge=${opponent.user_id}`}>Spar</a>);
+
+    if (opponent.village !== player.village && parseInt(opponent.rank) > 2 && player.rank > 2)
+    {
+        links.push('|');
+        links.push(<a href={`${system.links['battle']}&attack=${opponent.user_id}`}>Attack</a> )
+    }
+
+    //console.log(links);
+    return (links);
+};
 
 window.AreaMap = AreaMap;

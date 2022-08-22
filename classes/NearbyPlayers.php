@@ -126,5 +126,33 @@ class NearbyPlayers {
         }
 
     }
+    public static function getNearbyPlayers (System $system, User $player, Int $min = 0, Int $max = 30): Array
+    {
+        // Load rank data
+        $ranks = [];
+        $result = $system->query("SELECT `rank_id`, `name` FROM `ranks`");
+        while($rank = $system->db_fetch($result)) {
+            $ranks[$rank['rank_id']] = $rank['name'];
+        }
+
+        $result = $system->query(
+            "SELECT `user_id`, `user_name`, `rank`, `village`, `exp`, `location`, `battle_id`, `stealth` FROM `users` 
+		WHERE `last_active` > UNIX_TIMESTAMP() - 120 ORDER BY `exp` DESC LIMIT $min, $max"
+        );
+        $users = [];
+        while($row = $system->db_fetch($result)) {
+            $location = explode('.', $row['location']);
+            $scout_range = $player->scout_range - $row['stealth'];
+            if($scout_range < 0) {
+                $scout_range = 0;
+            }
+
+            if(abs($location[0] - $player->x) <= ($scout_range)
+                && abs($location[1] - $player->y) <= ($scout_range)) {
+                $users[] = $row;
+            }
+        }
+        return [$ranks, $users];
+    }
 }
 

@@ -8,7 +8,7 @@ class Travel {
      * @return array
      * @throws Exception
      */
-    public static function moveDirection(System $system, User $player, String $directionMoved): array
+    public static function moveDirection(System $system, User $player, String $directionMoved): Array
     {
         $villages = $system->getVillageLocations();
         $target_x = intval($player->x);
