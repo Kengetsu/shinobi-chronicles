@@ -13,6 +13,7 @@ const AreaMap = ({
     apiFetch(travelApiLink, {
       travel: newLocation
     }).then(handleApiResponse);
+    setIsTraveling(false);
   };
 
   const handleApiResponse = response => {
@@ -66,7 +67,7 @@ const AreaMap = ({
       e.preventDefault();
       handleKeyInput(e);
     });
-  });
+  }, []);
   return [/*#__PURE__*/React.createElement("p", {
     key: "systemMessage",
     className: "systemMessage"

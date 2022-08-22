@@ -26,6 +26,8 @@ const AreaMap = ({
         apiFetch(travelApiLink, {travel: newLocation})
             .then(handleApiResponse);
 
+        setIsTraveling(false);
+
     };
     const handleApiResponse = (response) => {
         //console.log(response);
@@ -81,14 +83,12 @@ const AreaMap = ({
             updateLocation(direction);
         }
     };
-
     React.useEffect(() => {
         document.addEventListener('keydown', (e) => {
             e.preventDefault();
             handleKeyInput(e);
         })
-    })
-
+    }, []);
     return ([
         <p key='systemMessage' className='systemMessage'>{error}</p>,
         <table key='scoutTable' id='scoutTable' className='table'>

@@ -10,8 +10,9 @@ class Travel {
      */
     public static function moveDirection(System $system, User $player, String $directionMoved): array
     {
-        $target_x = $player->x;
-        $target_y = $player->y;
+        $villages = $system->getVillageLocations();
+        $target_x = intval($player->x);
+        $target_y = intval($player->y);
 
         $ignore_travel_restrictions = $player->isHeadAdmin();
 
