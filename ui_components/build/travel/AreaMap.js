@@ -7,6 +7,7 @@ const AreaMap = ({
 }) => {
   const [currentLocation, setLocation] = React.useState([player.x, player.y]);
   const [isTraveling, setIsTraveling] = React.useState(false);
+  const [travelingInterval, setTravelingInterval] = React.useState(0);
   const [error, setError] = React.useState(null);
   const [rankData, setRankData] = React.useState([]);
   const [scoutData, setScoutData] = React.useState([]);
@@ -29,11 +30,15 @@ const AreaMap = ({
   }, []);
 
   const updateLocation = newLocation => {
+    // if (isTraveling === true)
+    // {
+    //     setError(`You must wait ${travelingInterval} seconds before traveling again.`);
+    //     return;
+    // }
     apiFetch(travelApiLink, {
       travel: newLocation
     }).then(handleApiResponse);
-    updateScoutData();
-    setIsTraveling(false);
+    updateScoutData(); //setIsTraveling(true);
   };
 
   const handleApiResponse = response => {
@@ -59,7 +64,6 @@ const AreaMap = ({
   };
 
   const handleKeyInput = evt => {
-    //console.log(evt);
     const leftArrow = 37;
     const upArrow = 38;
     const rightArrow = 39;
@@ -72,7 +76,6 @@ const AreaMap = ({
     const dLower = 100;
     const sUpper = 83;
     const sLower = 115;
-    if (isTraveling) return false;
     let direction = '';
 
     if (evt.which === leftArrow || evt.which === aLower || evt.which === aUpper) {
@@ -86,7 +89,6 @@ const AreaMap = ({
     }
 
     if (direction.length > 1) {
-      setIsTraveling(true);
       updateLocation(direction);
     }
   };
@@ -130,27 +132,9 @@ const AreaMap = ({
     className: "mapContainer"
   }, /*#__PURE__*/React.createElement(RenderMap, {
     currentLocation: currentLocation
-  }), /*#__PURE__*/React.createElement("a", {
-    onClick: () => updateLocation('north'),
-    className: "travelButton north"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "upArrow"
-  })), /*#__PURE__*/React.createElement("a", {
-    onClick: () => updateLocation('east'),
-    className: "travelButton east"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "rightArrow"
-  })), /*#__PURE__*/React.createElement("a", {
-    onClick: () => updateLocation('south'),
-    className: "travelButton south"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "downArrow"
-  })), /*#__PURE__*/React.createElement("a", {
-    onClick: () => updateLocation('west'),
-    className: "travelButton west"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "leftArrow"
-  })))))), /*#__PURE__*/React.createElement(ScoutTable, {
+  }), /*#__PURE__*/React.createElement(MapArrows, {
+    updateLocation: updateLocation
+  }))))), /*#__PURE__*/React.createElement(ScoutTable, {
     rankData: rankData,
     scoutData: scoutData,
     currentLocation: currentLocation
@@ -238,6 +222,36 @@ const RenderMap = ({
     villageIcons: villageIcons,
     currentLocation: currentLocation
   })));
+};
+
+const MapArrows = ({
+  updateLocation
+}) => {
+  const directions = [{
+    name: 'north',
+    img: 'upArrow'
+  }, {
+    name: 'south',
+    img: 'downArrow'
+  }, {
+    name: 'east',
+    img: 'rightArrow'
+  }, {
+    name: 'west',
+    img: 'leftArrow'
+  }];
+  return directions.map(({
+    name,
+    img
+  }) => {
+    return /*#__PURE__*/React.createElement("a", {
+      key: name,
+      onClick: () => updateLocation(name),
+      className: `travelButton ${name}`
+    }, /*#__PURE__*/React.createElement("span", {
+      className: img
+    }));
+  });
 };
 
 const ScoutTable = ({

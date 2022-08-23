@@ -19,6 +19,7 @@ const AreaMap = ({
 }) => {
     const [currentLocation, setLocation] = React.useState([player.x, player.y]);
     const [isTraveling, setIsTraveling] = React.useState(false);
+    const [travelingInterval, setTravelingInterval] = React.useState(0);
     const [error, setError] = React.useState(null);
 
     const [rankData, setRankData] = React.useState([]);
@@ -44,10 +45,15 @@ const AreaMap = ({
 
     const updateLocation = (newLocation) =>
     {
+        // if (isTraveling === true)
+        // {
+        //     setError(`You must wait ${travelingInterval} seconds before traveling again.`);
+        //     return;
+        // }
         apiFetch(travelApiLink, {travel: newLocation})
             .then(handleApiResponse);
         updateScoutData();
-        setIsTraveling(false);
+        //setIsTraveling(true);
 
     };
     const handleApiResponse = (response) => {
@@ -74,7 +80,6 @@ const AreaMap = ({
 
     const handleKeyInput = (evt) =>
     {
-        //console.log(evt);
         const leftArrow = 37;
         const upArrow = 38;
         const rightArrow = 39;
@@ -92,8 +97,8 @@ const AreaMap = ({
         const sUpper = 83;
         const sLower = 115;
 
-        if (isTraveling) return false;
         let direction = '';
+
         if(evt.which === leftArrow || evt.which === aLower || evt.which === aUpper) {
             direction = 'west';
         }
@@ -108,8 +113,6 @@ const AreaMap = ({
         }
 
         if(direction.length > 1) {
-
-            setIsTraveling(true);
             updateLocation(direction);
         }
     };
@@ -135,20 +138,8 @@ const AreaMap = ({
                         <div id='TravelContainer' className='travelContainer'>
                             <div id='AreaMap' className='mapContainer'>
                                 <RenderMap currentLocation={currentLocation}/>
-                                <a onClick={() => updateLocation('north')} className='travelButton north'>
-                                    <span className='upArrow'></span>
-                                </a>
-                                <a onClick={() => updateLocation('east')} className='travelButton east'>
-                                    <span className='rightArrow'></span>
-                                </a>
-                                <a onClick={() => updateLocation('south')} className='travelButton south'>
-                                    <span className='downArrow'></span>
-                                </a>
-                                <a onClick={() => updateLocation('west')} className='travelButton west'>
-                                    <span className='leftArrow'></span>
-                                </a>
+                                <MapArrows updateLocation={updateLocation}/>
                             </div>
-
                         </div>
                     </td>
                 </tr>
@@ -244,7 +235,25 @@ const RenderMap = ({currentLocation: currentLocation}) =>
         </table>
     );
 }
+const MapArrows = ({updateLocation}) =>
+{
 
+    const directions = [
+        {name: 'north', img: 'upArrow'},
+        {name: 'south', img: 'downArrow'},
+        {name: 'east', img: 'rightArrow'},
+        {name: 'west', img: 'leftArrow'},
+    ];
+
+    return directions.map(({name, img}) =>
+    {
+        return (
+            <a key={name} onClick={() => updateLocation(name)} className={`travelButton ${name}`}>
+                <span className={img}></span>
+            </a>
+        );
+    });
+}
 const ScoutTable = ({scoutData: scoutData, rankData: rankData, currentLocation: currentLocation}) =>
 {
     return ([
