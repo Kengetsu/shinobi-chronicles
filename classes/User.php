@@ -1652,6 +1652,7 @@ class User extends Fighter {
 
             // '', '', '', 0, 0, 0, 0,
             'forbidden_seal' => '',
+            'chat_color' => '',
             'current_ip' => $_SERVER['REMOTE_ADDR'],
             'profile_song' => '',
             'last_ai' => 0,
