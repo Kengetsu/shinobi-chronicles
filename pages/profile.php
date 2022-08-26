@@ -179,17 +179,17 @@ function userProfile() {
 		<label style='width:6.7em;' for='healthbar'>Health:</label>" .
             "<span id='health'>" . sprintf("%.2f", $player->health) .'/' . sprintf("%.2f", $player->max_health) . ($player->health != $player->max_health ? " -> <b style='color: green;'>" . sprintf("%.2f",$health_after_regen) . "</b>" : "") . "</span><br />" .
 
-            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;'>" .
+            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;display: flex;'>" .
             "<progress id='healthbar' style='accent-color:#C00000;height:6px;width: 100%;' value='" . $player->health . "' max='" . $player->max_health . "'/></div>" . "</div>" .
             "<label style='width:6.7em;' for='chakrabar'>Chakra:</label>" .
             "<span id='chakra'>" . sprintf("%.2f", $player->chakra) . '/' . sprintf("%.2f", $player->max_chakra) . ($player->chakra != $player->max_chakra ? " -> <b style='color: green;'>" . sprintf("%.2f",$chakra_after_regen) . "</b>" : "") . "</span><br />" .
 
-            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;'>" .
+            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;display: flex;'>" .
             "<progress id='chakrabar' style='accent-color:#0000B0;height:6px;width:100%;' value='" . $player->chakra . "' max='" . $player->max_chakra . "'/></div>" . "</div>" .
             "<label style='width:6.7em;' for='staminabar'>Stamina:</label>" .
             "<span id='stamina'>" . sprintf("%.2f", $player->stamina) . '/' . sprintf("%.2f", $player->max_stamina) . ($player->stamina != $player->max_stamina ? " -> <b style='color: green;'>" . sprintf("%.2f",$stamina_after_regen) . "</b>" : "") . "</span><br />" .
 
-            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;'>" .
+            "<div style='height:6px;width:250px;border-style:solid;border-width:1px;border-radius: 4px;display: flex;'>" .
             "<progress id='staminabar' style='accent-color:#00B000;height:6px;width:100%;' value='" . $player->stamina . "' max='" . $player->max_stamina . "'/></div>" . "</div>" .
             "<br />
 		Regeneration Rate: " . $player->regen_rate;
