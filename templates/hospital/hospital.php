@@ -25,7 +25,7 @@
                         <?= count($medical_staff)?>
                     <?php else: ?>
                         0
-                    <?php endif ?>
+                    <?php endif; ?>
                 </label>
                 <br>
             </td>

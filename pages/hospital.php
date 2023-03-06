@@ -62,10 +62,29 @@ function hospital()
         $patients = $system->query("SELECT COUNT(`user_id`) as Count_1 FROM `users` WHERE `village`='{$player->village}' AND `hospitalized` = 1");
         $patients = $system->db_fetch($patients)['Count_1'];
 
-        $medical_staff = $system->query("SELECT `user_name`, `medical_rank` FROM `users` WHERE `village`='{$player->village}' AND `medical_rank` >= 1 ORDER BY `medical_rank` DESC");
+        $medical_staff = $system->query("SELECT `user_name`, `medical_rank`, `patients_treated` FROM `users` WHERE `village`='{$player->village}' AND `medical_rank` >= 1 ORDER BY `medical_rank`, `patients_treated` DESC");
         $medical_staff = $system->db_fetch($medical_staff);
 
         require_once "templates/hospital/hospital.php";
+    }
+    else if ($page === 'medical_staff')
+    {
+        $medical_staff = $system->query("SELECT `user_name`, `medical_rank`, `patients_treated` FROM `users` WHERE `village`='{$player->village}' AND `medical_rank` >= 1 ORDER BY `medical_rank`, `patients_treated` DESC");
+        $medical_staff = $system->db_fetch($medical_staff);
+
+        require_once "templates/hospital/medical_staff.php";
+    }
+    else if ($page === 'patients')
+    {
+        require_once "templates/hospital/patients.php";
+    }
+    else if ($page == 'applications')
+    {
+        require_once "templates/hospital/applications.php";
+    }
+    else if ($page == 'staff_room')
+    {
+        require_once "templates/hospital/staff_room.php";
     }
 
 }
@@ -91,7 +110,7 @@ function renderHospitalSubmenu() {
     ];
     if(!$player->medical_rank && $player->rank >= Rank::CHUUNIN) {
         $submenu_links[] = [
-            'link' => $self_link . '&view=application',
+            'link' => $self_link . '&view=applications',
             'title' => 'Applications',
         ];
     }
