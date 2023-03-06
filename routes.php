@@ -144,6 +144,13 @@ $pages = [
         'village_ok' => System::ONLY_IN_VILLAGE,
         'menu' => System::MENU_VILLAGE,
     ],
+    32 => [
+        'file_name' => 'hospital.php',
+        'title' => 'Hospital',
+        'function_name' => 'hospital',
+        'menu' => System::MENU_VILLAGE,
+        'village_ok' => System::ONLY_IN_VILLAGE,
+    ],
     9 => [
         'file_name' => 'villageHQ.php',
         'title' => 'Village HQ',

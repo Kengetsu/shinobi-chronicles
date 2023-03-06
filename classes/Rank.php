@@ -10,7 +10,12 @@ class Rank {
     public int $health_gain;
     public int $pool_gain;
     public int $stat_cap;
-    
+
+    const AKADEMI_SEI = 1;
+    const GENIN = 2;
+    const CHUUNIN = 3;
+    const JONIN = 4;
+
     public static function fromDb($db_rank_data): Rank {
         $rank = new Rank();
 
