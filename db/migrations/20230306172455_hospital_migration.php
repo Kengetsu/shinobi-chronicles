@@ -32,6 +32,7 @@ final class HospitalMigration extends AbstractMigration
             ->addColumn('medical_level_exp', 'integer', array('default' => 0))
             ->addColumn('patients_treated', 'integer', array('default' => 0))
             ->addColumn('medical_title', 'string', array('null' => true))
+            ->addColumn('medical_exam_stage', 'string', array('null' => true))
             ->update();
 
         $medical_ranks = $this->table('medical_ranks');
@@ -41,6 +42,7 @@ final class HospitalMigration extends AbstractMigration
             ->addColumn('max_level', 'integer')
             ->addColumn('base_regen', 'integer')
             ->addColumn('regen_gain', 'integer')
+            ->addColumn('rank_required', 'integer')
             ->create();
 
         if ($this->isMigratingUp())
@@ -52,6 +54,7 @@ final class HospitalMigration extends AbstractMigration
                     'max_level' => 5,
                     'base_regen' => 1,
                     'regen_gain' => 5,
+                    'rank_required' => 3,
                 ],
                 [
                     'name' => 'Practitioner',
@@ -59,6 +62,7 @@ final class HospitalMigration extends AbstractMigration
                     'max_level' => 10,
                     'base_regen' => 25,
                     'regen_gain' => 25,
+                    'rank_required' => 3,
                 ],
                 [
                     'name' => 'Expert',
@@ -66,6 +70,7 @@ final class HospitalMigration extends AbstractMigration
                     'max_level' => 15,
                     'base_regen' => 200,
                     'regen_gain' => 50,
+                    'rank_required' => 4,
                 ],
                 [
                     'name' => 'Specialist',
@@ -73,6 +78,7 @@ final class HospitalMigration extends AbstractMigration
                     'max_level' => 20,
                     'base_regen' => 600,
                     'regen_gain' => 100,
+                    'rank_required' => 4,
                 ]
             ];
 

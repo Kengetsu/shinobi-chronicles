@@ -252,6 +252,7 @@ class User extends Fighter {
     public int $medical_regen;
     public ?string $medical_title;
     public int $medical_patients_treated;
+    public ?int $medical_exam_stage;
 
     public bool $hospitalized = false;
 
@@ -261,6 +262,7 @@ class User extends Fighter {
     public int $medical_max_level;
     public int $medical_base_regen;
     public int $medical_regen_gain;
+    public int $medical_rank_required;
 
     /**
      * User constructor.
@@ -474,7 +476,9 @@ class User extends Fighter {
         $this->medical_level_exp = $user_data['medical_level_exp'];
         $this->medical_patients_treated = $user_data['patients_treated'];
         $this->medical_title = $user_data['medical_title'];
-        $this->hospitalized = $user_data['hospitalized'];
+        $this->medical_exam_stage = $user_data['medical_exam_stage'];
+
+        $this->hospitalized = (bool)$user_data['hospitalized'];
 
         $med_rank_data = $this->system->query("SELECT * FROM `medical_ranks` WHERE `id`='$this->medical_rank'");
         if (!$this->system->db_last_num_rows == 0)
@@ -485,6 +489,7 @@ class User extends Fighter {
             $this->medical_max_level = $med_rank_data['max_level'];
             $this->medical_base_regen = $med_rank_data['base_regen'];
             $this->medical_regen_gain = $med_rank_data['regen_gain'];
+            $this->medical_rank_required = $med_rank_data['rank_required'];
 
             $this->medical_regen = $this->medical_level * $this->medical_regen_gain;
         }
@@ -1574,7 +1579,8 @@ class User extends Fighter {
             `medical_level` = '{$this->medical_level}',
             `medical_level_exp` = '{$this->medical_level_exp}',
             `patients_treated` = '{$this->medical_patients_treated}',
-            `medical_title` = '{$this->medical_title}'
+            `medical_title` = '{$this->medical_title}',
+            `medical_exam_stage` = '{$this->medical_exam_stage}'
             WHERE `user_id` = '{$this->user_id}'
             ");
         }
@@ -1760,6 +1766,10 @@ class User extends Fighter {
 
     public function expForNextLevel() {
         return $this->exp_per_level * (($this->level + 1) - $this->base_level) + ($this->base_stats * 10);
+    }
+    public function expForNextMedicalLevel()
+    {
+        return $this->medical_regen_gain * (($this->medical_level + 1) - $this->medical_base_level) + ($this->medical_base_regen * 10);
     }
 
     public function hasEquippedJutsu(int $jutsu_id): bool {
