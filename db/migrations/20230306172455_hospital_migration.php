@@ -18,22 +18,24 @@ final class HospitalMigration extends AbstractMigration
      */
     public function change(): void
     {
+        $users = $this->table('users');
         $hospital = $this->table('hospital');
+        $user_medics = $this->table('user_medics');
+
         $hospital
             ->addColumn('user_id', 'integer')
             ->addColumn('doctor_id', 'integer', array('null' => true))
             ->create();
 
-        $users = $this->table('users');
-        $users
-            ->addColumn('hospitalized', 'boolean', array('default' => false))
-            ->addColumn('medical_rank', 'integer', array('default' => 0))
-            ->addColumn('medical_level', 'integer', array('default' => 0))
-            ->addColumn('medical_level_exp', 'integer', array('default' => 0))
+        $user_medics
+            ->addColumn('user_id', 'integer')
+            ->addColumn('rank', 'integer', array('default' => 0))
+            ->addColumn('level', 'integer', array('default' => 0))
+            ->addColumn('level_exp', 'integer', array('default' => 0))
             ->addColumn('patients_treated', 'integer', array('default' => 0))
-            ->addColumn('medical_title', 'string', array('null' => true))
-            ->addColumn('medical_exam_stage', 'string', array('null' => true))
-            ->update();
+            ->addColumn('title', 'string', array('null' => true))
+            ->addColumn('exam_stage', 'integer', array('default' => 0))
+            ->create();
 
         $medical_ranks = $this->table('medical_ranks');
         $medical_ranks
@@ -44,6 +46,10 @@ final class HospitalMigration extends AbstractMigration
             ->addColumn('regen_gain', 'integer')
             ->addColumn('rank_required', 'integer')
             ->create();
+
+        $users
+            ->addColumn('hospitalized', 'boolean', array('default' => false))
+            ->update();
 
         if ($this->isMigratingUp())
         {

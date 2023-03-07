@@ -471,12 +471,15 @@ class User extends Fighter {
         }
 
         // Medical Nin
-        $this->medical_rank = $user_data['medical_rank'];
-        $this->medical_level = $user_data['medical_level'];
-        $this->medical_level_exp = $user_data['medical_level_exp'];
-        $this->medical_patients_treated = $user_data['patients_treated'];
-        $this->medical_title = $user_data['medical_title'];
-        $this->medical_exam_stage = $user_data['medical_exam_stage'];
+        $medical_data = $this->system->query("SELECT * FROM `user_medics` WHERE `user_id`='$this->user_id'");
+        if(!$this->system->db_last_num_rows == 0) {
+            $this->medical_rank = $medical_data['rank'];
+            $this->medical_level = $medical_data['level'];
+            $this->medical_level_exp = $medical_data['level_exp'];
+            $this->medical_patients_treated = $medical_data['patients_treated'];
+            $this->medical_title = $medical_data['title'];
+            $this->medical_exam_stage = $medical_data['exam_stage'];
+        }
 
         $this->hospitalized = (bool)$user_data['hospitalized'];
 
@@ -1574,13 +1577,13 @@ class User extends Fighter {
 
         if ($this->medical_rank || $this->medical_exam_stage)
         {
-            $this->system->query("UPDATE `users` SET
-            `medical_rank` = '{$this->medical_rank}',
-            `medical_level` = '{$this->medical_level}',
-            `medical_level_exp` = '{$this->medical_level_exp}',
+            $this->system->query("UPDATE `user_medics` SET
+            `rank` = '{$this->medical_rank}',
+            `level` = '{$this->medical_level}',
+            `level_exp` = '{$this->medical_level_exp}',
             `patients_treated` = '{$this->medical_patients_treated}',
-            `medical_title` = '{$this->medical_title}',
-            `medical_exam_stage` = '{$this->medical_exam_stage}'
+            `title` = '{$this->medical_title}',
+            `exam_stage` = '{$this->medical_exam_stage}'
             WHERE `user_id` = '{$this->user_id}'
             ");
         }

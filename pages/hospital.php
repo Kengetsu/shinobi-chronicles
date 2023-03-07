@@ -74,14 +74,14 @@ function hospital()
         $patients = $system->query("SELECT COUNT(`user_id`) as Count_1 FROM `users` WHERE `village`='{$player->village}' AND `hospitalized` = 1");
         $patients = $system->db_fetch($patients)['Count_1'];
 
-        $medical_staff = $system->query("SELECT `user_name`, `medical_rank`, `patients_treated` FROM `users` WHERE `village`='{$player->village}' AND `medical_rank` >= 1 ORDER BY `medical_rank`, `patients_treated` DESC");
+        $medical_staff = $system->query("SELECT `user_name`, user_medics.`rank`, `patients_treated` FROM `user_medics` JOIN `users` ON users.`user_id` = user_medics.`user_id` WHERE `village`='{$player->village}' AND user_medics.`rank` >= 1 ORDER BY user_medics.`rank`, `patients_treated` DESC");
         $medical_staff = $system->db_fetch($medical_staff);
 
         require_once "templates/hospital/hospital.php";
     }
     else if ($page === 'medical_staff')
     {
-        $medical_staff = $system->query("SELECT `user_name`, `medical_rank`, `patients_treated` FROM `users` WHERE `village`='{$player->village}' AND `medical_rank` >= 1 ORDER BY `medical_rank`, `patients_treated` DESC");
+        $medical_staff = $system->query("SELECT `user_name`, user_medics.`rank`, `patients_treated` FROM `user_medics` JOIN `users` ON users.`user_id` = user_medics.`user_id` WHERE `village`='{$player->village}' AND user_medics.`rank` >= 1 ORDER BY user_medics.`rank`, `patients_treated` DESC");
         $medical_staff = $system->db_fetch($medical_staff);
 
         require_once "templates/hospital/medical_staff.php";
@@ -104,6 +104,7 @@ function hospital()
 
             if($application == 1)
             {
+                $system->query("INSERT INTO `user_medics` (`user_id`, `exam_stage`) VALUES ({$player->user_id}, 1)");
                 $player->medical_exam_stage = 1;
                 $player->updateData();
                 echo "<table class='table'><tbody>
