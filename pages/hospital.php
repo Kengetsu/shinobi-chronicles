@@ -19,23 +19,22 @@ function hospital()
                 echo "<p style='text-align:center;font-style:italic;'>
                     You must be out of battle to level up.</p>";
             } else {
-                require("levelUp.php");
-                levelUp();
+                require("medical_exam.php");
+                medicalLevelUp();
                 $exp_needed = $player->expForNextMedicalLevel();
             }
         } // Rank up
         else if ($player->medical_level >= $player->medical_max_level && $player->medical_level_exp >= $exp_needed && $player->medical_rank < System::SC_MAX_MEDICAL_RANK) {
-            $next_rank = $system->query("SELECT `rank_required` FROM `medical_ranks` WHERE id='" . $player->medical_rank + 1 ."'");
-            if ($system->db_last_num_rows == 0)
-            {
+            $next_rank = $system->query("SELECT `rank_required` FROM `medical_ranks` WHERE id='" . $player->medical_rank + 1 . "'");
+            if ($system->db_last_num_rows == 0) {
                 $system->printMessage('Failed to fetch next rank!');
                 return false;
             }
             $next_rank = $system->db_fetch($next_rank);
-            if ($player->rank < $next_rank)
-            {
+            if ($player->rank < $next_rank) {
                 $rank_names = RankManager::fetchNames($system);
-                $system->printMessage("You are not eligible for a promotion! A rank of {$rank_names[$next_rank]} is required.");
+                $system->message("You are not eligible for a promotion! A rank of {$rank_names[$next_rank]} is required.");
+                $system->printMessage();
                 return false;
             }
             if ($player->battle_id > 0 or !$player->in_village) {
@@ -49,11 +48,24 @@ function hospital()
                 }
 
                 echo "<p style='text-align:center;font-size:1.1em;'>
-                    <a class='button' style='padding:5px 10px 4px;margin-bottom:0;text-decoration:none;' href='{$system->links['medical_rankup']}'>{$prompt}</a>
+                    <a class='button' style='padding:5px 10px 4px;margin-bottom:0;text-decoration:none;' href='{$system->links['medical_exam']}'>{$prompt}</a>
                 </p>";
             }
         }
     }
+    if ($player->medical_rank === 0 && $player->medical_exam_stage) {
+        if ($player->battle_id > 0 or !$player->in_village) {
+            echo "<p style='text-align:center;font-style:italic;'>
+                You must be out of battle to continue your exam.</p>";
+        } else {
+            $prompt = "Resume exam to become a medical ninja";
+
+            echo "<p style='text-align:center;font-size:1.1em;'>
+                <a class='button' style='padding:5px 10px 4px;margin-bottom:0;text-decoration:none;' href='{$system->links['medical_exam']}'>{$prompt}</a>
+            </p>";
+        }
+    }
+
 
     $page = $_GET['view'] ?? 'hospital_info';
 
@@ -80,7 +92,28 @@ function hospital()
     }
     else if ($page == 'applications')
     {
-        require_once "templates/hospital/applications.php";
+        if(!empty($_POST['confirm'])) {
+            $application = $_POST['confirm'];
+
+            if ($player->medical_exam_stage)
+            {
+                $system->message('You are already undergoing an exam!');
+                $system->printMessage();
+                return false;
+            }
+
+            if($application == 1)
+            {
+                $player->medical_exam_stage = 1;
+                $player->updateData();
+                require_once "templates/hospital/medical_exam.php";
+            }
+        }
+        else
+        {
+            require_once "templates/hospital/applications.php";
+        }
+
     }
     else if ($page == 'staff_room')
     {
@@ -90,7 +123,6 @@ function hospital()
 }
 
 function renderHospitalSubmenu() {
-    global $system;
     global $player;
     global $self_link;
 

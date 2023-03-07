@@ -1572,7 +1572,7 @@ class User extends Fighter {
             $this->system->query("UPDATE `daily_tasks` SET `tasks`='{$dt}' WHERE `user_id`='{$this->user_id}'");
         }
 
-        if ($this->medical_rank)
+        if ($this->medical_rank || $this->medical_exam_stage)
         {
             $this->system->query("UPDATE `users` SET
             `medical_rank` = '{$this->medical_rank}',

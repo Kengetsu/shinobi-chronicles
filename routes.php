@@ -234,6 +234,11 @@ $pages = [
         'title' => 'Event',
         'function_name' => 'event',
     ],
+    33 => [
+        'file_name' => 'medical_exam.php',
+        'title' => 'Medical Exam',
+        'function_name' => 'medicalRankUp',
+    ],
 ];
 
 return $pages;

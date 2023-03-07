@@ -131,6 +131,7 @@ class System {
         'support' => 30,
         'chat_log' => 31,
         'hospital' => 32,
+        'medical_exam' => 33,
     ];
     public array $links = [
         'github' => 'https://github.com/elementum-games/shinobi-chronicles',
