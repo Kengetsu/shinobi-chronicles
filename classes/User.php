@@ -250,7 +250,7 @@ class User extends Fighter {
     public int $medical_level;
     public int $medical_level_exp;
     public int $medical_regen;
-    public ?string $medical_title;
+    public ?string $medical_title = null;
     public int $medical_patients_treated;
     public ?int $medical_exam_stage;
 

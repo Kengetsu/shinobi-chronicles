@@ -106,7 +106,11 @@ function hospital()
             {
                 $player->medical_exam_stage = 1;
                 $player->updateData();
-                require_once "templates/hospital/medical_exam.php";
+                echo "<table class='table'><tbody>
+                    <td>
+                        <p>Good luck! We are expecting great things from you!</p>
+                        <a href={$system->links['medical_exam']}>Continue to exam</a>
+                    </td></tbody></table>";
             }
         }
         else
