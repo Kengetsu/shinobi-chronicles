@@ -104,7 +104,10 @@ function hospital()
 
             if($application == 1)
             {
-                $system->query("INSERT INTO `user_medics` (`user_id`, `exam_stage`) VALUES ({$player->user_id}, 1)");
+                $system->query("SELECT `user_id` FROM `user_medics` WHERE `user_id`={$player->user_id}");
+                if ($system->db_last_num_rows == 0) {
+                    $system->query("INSERT INTO `user_medics` (`user_id`, `exam_stage`) VALUES ({$player->user_id}, 1)");
+                }
                 $player->medical_exam_stage = 1;
                 $player->updateData();
                 echo "<table class='table'><tbody>

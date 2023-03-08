@@ -246,13 +246,13 @@ class User extends Fighter {
     ];
 
     // Medical Nin
-    public int $medical_rank;
-    public int $medical_level;
-    public int $medical_level_exp;
-    public int $medical_regen;
+    public int $medical_rank = 0;
+    public int $medical_level = 0;
+    public int $medical_level_exp = 0;
+    public int $medical_regen = 0;
     public ?string $medical_title = null;
-    public int $medical_patients_treated;
-    public ?int $medical_exam_stage;
+    public int $medical_patients_treated = 0;
+    public ?int $medical_exam_stage = 0;
 
     public bool $hospitalized = false;
 
@@ -473,6 +473,7 @@ class User extends Fighter {
         // Medical Nin
         $medical_data = $this->system->query("SELECT * FROM `user_medics` WHERE `user_id`='$this->user_id'");
         if(!$this->system->db_last_num_rows == 0) {
+            $medical_data = $this->system->db_fetch($medical_data);
             $this->medical_rank = $medical_data['rank'];
             $this->medical_level = $medical_data['level'];
             $this->medical_level_exp = $medical_data['level_exp'];
@@ -480,8 +481,6 @@ class User extends Fighter {
             $this->medical_title = $medical_data['title'];
             $this->medical_exam_stage = $medical_data['exam_stage'];
         }
-
-        $this->hospitalized = (bool)$user_data['hospitalized'];
 
         $med_rank_data = $this->system->query("SELECT * FROM `medical_ranks` WHERE `id`='$this->medical_rank'");
         if (!$this->system->db_last_num_rows == 0)
@@ -496,6 +495,8 @@ class User extends Fighter {
 
             $this->medical_regen = $this->medical_level * $this->medical_regen_gain;
         }
+
+        $this->hospitalized = (bool)$user_data['hospitalized'];
 
         $this->gender = $user_data['gender'];
         $this->village = $user_data['village'];
@@ -1575,18 +1576,16 @@ class User extends Fighter {
             $this->system->query("UPDATE `daily_tasks` SET `tasks`='{$dt}' WHERE `user_id`='{$this->user_id}'");
         }
 
-        if ($this->medical_rank || $this->medical_exam_stage)
-        {
-            $this->system->query("UPDATE `user_medics` SET
-            `rank` = '{$this->medical_rank}',
-            `level` = '{$this->medical_level}',
-            `level_exp` = '{$this->medical_level_exp}',
-            `patients_treated` = '{$this->medical_patients_treated}',
-            `title` = '{$this->medical_title}',
-            `exam_stage` = '{$this->medical_exam_stage}'
-            WHERE `user_id` = '{$this->user_id}'
-            ");
-        }
+        // Update Medical Data
+        $this->system->query("UPDATE `user_medics` SET
+        `rank` = '{$this->medical_rank}',
+        `level` = '{$this->medical_level}',
+        `level_exp` = '{$this->medical_level_exp}',
+        `patients_treated` = '{$this->medical_patients_treated}',
+        `title` = '{$this->medical_title}',
+        `exam_stage` = '{$this->medical_exam_stage}'
+        WHERE `user_id` = '{$this->user_id}'
+        ");
     }
 
     /* function updateInventory()

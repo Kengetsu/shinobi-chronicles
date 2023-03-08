@@ -13,6 +13,9 @@
         <tr>
             <td>
                 <p>Good luck on your examination</p>
+                <form method="post">
+                    <button name="abandon_exam" value="1">GG to hard</button>
+                </form>
             </td>
         </tr>
     </tbody>

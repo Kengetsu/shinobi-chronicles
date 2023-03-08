@@ -24,17 +24,19 @@ final class HospitalMigration extends AbstractMigration
 
         $hospital
             ->addColumn('user_id', 'integer')
-            ->addColumn('doctor_id', 'integer', array('null' => true))
+            ->addColumn('doctor_id', 'integer', ['null' => true])
+            ->addIndex('user_id', ['unique' => true])
             ->create();
 
         $user_medics
             ->addColumn('user_id', 'integer')
-            ->addColumn('rank', 'integer', array('default' => 0))
-            ->addColumn('level', 'integer', array('default' => 0))
-            ->addColumn('level_exp', 'integer', array('default' => 0))
-            ->addColumn('patients_treated', 'integer', array('default' => 0))
-            ->addColumn('title', 'string', array('null' => true))
-            ->addColumn('exam_stage', 'integer', array('default' => 0))
+            ->addColumn('rank', 'integer', ['default' => 0])
+            ->addColumn('level', 'integer', ['default' => 0])
+            ->addColumn('level_exp', 'integer', ['default' => 0])
+            ->addColumn('patients_treated', 'integer', ['default' => 0])
+            ->addColumn('title', 'string', ['null' => true])
+            ->addColumn('exam_stage', 'integer', ['default' => 0])
+            ->addIndex('user_id', ['unique' => true])
             ->create();
 
         $medical_ranks = $this->table('medical_ranks');
@@ -48,7 +50,7 @@ final class HospitalMigration extends AbstractMigration
             ->create();
 
         $users
-            ->addColumn('hospitalized', 'boolean', array('default' => false))
+            ->addColumn('hospitalized', 'boolean', ['default' => false])
             ->update();
 
         if ($this->isMigratingUp())
